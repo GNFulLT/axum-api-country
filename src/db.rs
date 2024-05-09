@@ -121,7 +121,7 @@ pub async fn init_db(pool: Pool<Postgres>) {
     tasks = schemas_path.read_dir().expect("Schema path is not dir or an unexpected error occurred").map(|entry_res| {
         let pool2: Pool<Postgres> = pool.clone();
         let any_failed2 = any_failed.clone();
-        tokio::spawn(async move {
+        let t = tokio::spawn(async move {
             if let Ok(entry) = entry_res {
                 if entry.metadata().unwrap().is_file()
                 {
@@ -135,7 +135,10 @@ pub async fn init_db(pool: Pool<Postgres>) {
                     }
                 }
             }
-        })
+        });
+
+        thread::sleep(time::Duration::from_millis(5));
+        return t;
         
     }).collect();
 
